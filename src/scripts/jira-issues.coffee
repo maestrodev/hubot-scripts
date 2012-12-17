@@ -8,6 +8,7 @@
 #   HUBOT_JIRA_DOMAIN
 #   HUBOT_JIRA_USERNAME (optional)
 #   HUBOT_JIRA_PASSWORD (optional)
+#   HUBOT_JIRA_IGNORECASE (optional; default is "true")
 #
 # Commands:
 # 
@@ -33,7 +34,10 @@ module.exports = (robot) ->
       json = JSON.parse(data)
       jiraPrefixes = ( entry.key for entry in json )
       reducedPrefixes = jiraPrefixes.reduce (x,y) -> x + "-|" + y
-      jiraPattern = "/(" + reducedPrefixes + "-)(\\d+)/gi"
+      jiraPattern = "/\\b(" + reducedPrefixes + "-)(\\d+)\\b/g"
+      ic = process.env.HUBOT_JIRA_IGNORECASE
+      if ic == undefined || ic == "true"
+        jiraPattern += "i"
 
       robot.hear eval(jiraPattern), (msg) ->
         for i in msg.match
